@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  store       String
+
+  hasQuantity Boolean
+  quantity    Int?
+  unit        String?
+
+  images      ItemImage[]
+
+  variants    Variant[]
+}
+
+model ItemImage {
+  id     String @id @default(cuid())
+  url    String
+
+  itemId String
+  item   Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Variant {
+  id           String @id @default(cuid())
+
+  name         String
+
+  hasQuantity  Boolean
+  quantity     Int?
+  unit         String?
+
+  itemId       String
+  item         Item   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  images       VariantImage[]
+}
+
+model VariantImage {
+  id        String @id @default(cuid())
+  url       String
+
+  variantId String
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+}
+
+model TrapperTransaction {
+  id       String @id @default(cuid())
+
+  type     TransactionType
+
+  name     String
+  phone    String?
+
+  quantity Int
+  date     DateTime @default(now())
+}
+
+model AppSettings {
+  id            Int @id @default(1)
+
+  apartmentName String
+  totalTrappers Int
+}
+
+enum TransactionType {
+  checkout
+  checkin
+}

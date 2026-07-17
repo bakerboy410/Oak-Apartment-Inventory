@@ -1,0 +1,33 @@
+import { prisma } from "@/src/lib/prisma";
+import ItemCard from "@/components/ItemCard";
+
+export default async function Home() {
+  const items = await prisma.item.findMany({
+    include: {
+      images: true,
+      variants: {
+        include: {
+          images: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return (
+    <main className="min-h-screen bg-gray-100 px-6 py-10">
+      <section className="mb-12 text-center">
+        <h1 className="text-5xl font-bold text-gray-900">Oak Apartments</h1>
+
+        <p className="mt-3 text-xl font-medium text-gray-700">Inventory</p>
+      </section>
+      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {items.map((item) => (
+          <ItemCard key={item.id} item={item} />
+        ))}
+      </section>{" "}
+    </main>
+  );
+}
