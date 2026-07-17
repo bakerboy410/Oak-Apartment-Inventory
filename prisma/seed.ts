@@ -66,6 +66,23 @@ async function main() {
     },
   });
 
+  await prisma.borrower.deleteMany();
+
+  await prisma.borrower.createMany({
+    data: [
+      {
+        name: "John Kamau",
+        phone: "0712345678",
+        quantity: 5,
+      },
+      {
+        name: "Mary Wanjiru",
+        phone: "0700111222",
+        quantity: 12,
+      },
+    ],
+  });
+
   console.log("✅ Database seeded.");
 }
 

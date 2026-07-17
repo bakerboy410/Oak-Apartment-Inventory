@@ -71,6 +71,16 @@ model AppSettings {
   totalTrappers Int
 }
 
+model Borrower {
+  id        String   @id @default(cuid())
+
+  name      String
+  phone     String?
+  quantity  Int
+
+  createdAt DateTime @default(now())
+}
+
 enum TransactionType {
   checkout
   checkin
