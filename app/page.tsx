@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import ItemCard from "@/components/ItemCard";
+import InventorySearch from "@/components/inventory/InventorySearch";
 
 export default async function Home() {
   const items = await prisma.item.findMany({
@@ -23,11 +23,7 @@ export default async function Home() {
 
         <p className="mt-3 text-xl font-medium text-gray-700">Inventory</p>
       </section>
-      <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {items.map((item) => (
-          <ItemCard key={item.id} item={item} />
-        ))}
-      </section>{" "}
+      <InventorySearch items={items} />
     </main>
   );
 }

@@ -1,17 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Item, ItemImage, Variant, VariantImage } from "@prisma/client";
+import { InventoryItem } from "@/types/inventory";
 
-type InventoryItem = Item & {
-  images: ItemImage[];
-  variants: (Variant & {
-    images: VariantImage[];
-  })[];
-};
-
-interface ItemCardProps {
+type ItemCardProps = {
   item: InventoryItem;
-}
+};
 
 export default function ItemCard({ item }: ItemCardProps) {
   const image = item.images[0]?.url;
@@ -28,6 +21,7 @@ export default function ItemCard({ item }: ItemCardProps) {
             className="h-56 w-full bg-white object-contain p-3"
           />
         )}
+
         <div className="p-4">
           <h2 className="text-center text-lg font-semibold text-gray-900">
             {item.name}
@@ -36,7 +30,7 @@ export default function ItemCard({ item }: ItemCardProps) {
           <p className="mt-2 text-center text-sm font-medium text-gray-600">
             Store {item.store}
           </p>
-        </div>{" "}
+        </div>
       </div>
     </Link>
   );
