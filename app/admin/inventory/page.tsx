@@ -69,10 +69,6 @@ export default async function InventoryAdminPage() {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <button className="rounded-lg bg-yellow-500 px-4 py-2 text-white">
-                    Edit
-                  </button>
-
                   <button className="rounded-lg bg-green-600 px-4 py-2 text-white">
                     Add Variant
                   </button>
@@ -104,10 +100,6 @@ export default async function InventoryAdminPage() {
                         </div>
 
                         <div className="flex gap-2">
-                          <button className="rounded bg-yellow-500 px-3 py-1 text-white">
-                            Edit
-                          </button>
-
                           <button className="rounded bg-red-600 px-3 py-1 text-white">
                             Delete
                           </button>
