@@ -39,16 +39,20 @@ export default function CheckInPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 py-10">
+    <main
+      className="min-h-screen bg-gray-100 px-6 py-10"
+      font-semibold
+      text-gray-800
+    >
       <div className="mx-auto max-w-xl">
         <Link
           href="/admin/trappers"
-          className="inline-flex rounded-xl bg-white px-5 py-3 shadow"
+          className="inline-flex rounded-xl bg-white px-5 py-3 shadow text-gray-800"
         >
           ← Back
         </Link>
 
-        <div className="mt-8 rounded-3xl bg-white p-8 shadow">
+        <div className="mt-8 rounded-3xl bg-white p-8 shadow text-gray-800">
           <h1 className="text-4xl font-bold">📥 Check In Trappers</h1>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
