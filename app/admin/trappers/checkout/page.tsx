@@ -66,14 +66,21 @@ export default function CheckoutPage() {
             </div>
 
             <div>
-              <label className="mb-2 block font-semibold">
-                Phone Number (Optional)
-              </label>
+              <label className="mb-2 block font-semibold">Phone Number</label>
 
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full rounded-xl border px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block font-semibold">Date</label>
+              <input
+                type="date"
+                name="date"
+                defaultValue={new Date().toISOString().split("T")[0]}
               />
             </div>
 

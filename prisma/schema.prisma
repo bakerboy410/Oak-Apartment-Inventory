@@ -55,7 +55,7 @@ model VariantImage {
 
 model TrapperTransaction {
   id       String @id @default(cuid())
-
+ 
   type     TransactionType
 
   name     String
@@ -63,6 +63,8 @@ model TrapperTransaction {
 
   quantity Int
   date     DateTime @default(now())
+
+  legacy Boolean @default(false)
 }
 
 model AppSettings {

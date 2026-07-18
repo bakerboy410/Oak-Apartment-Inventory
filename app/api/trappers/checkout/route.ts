@@ -1,39 +1,48 @@
-import { prisma } from "@/src/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const body = await request.json();
+  const formData = await request.formData();
 
-  const settings = await prisma.appSettings.findFirst();
+  const name = formData.get("name") as string;
+  const phone = (formData.get("phone") as string) || null;
+  const quantity = Number(formData.get("quantity"));
+  const date = new Date(formData.get("date") as string);
 
-  if (!settings) {
-    return NextResponse.json({ error: "Settings not found" }, { status: 500 });
-  }
+  const borrower = await prisma.borrower.findFirst({
+    where: {
+      name,
+    },
+  });
 
-  if (settings.totalTrappers < body.quantity) {
-    return NextResponse.json(
-      { error: "Not enough trappers available." },
-      { status: 400 },
-    );
+  if (borrower) {
+    await prisma.borrower.update({
+      where: {
+        id: borrower.id,
+      },
+      data: {
+        quantity: {
+          increment: quantity,
+        },
+      },
+    });
+  } else {
+    await prisma.borrower.create({
+      data: {
+        name,
+        phone,
+        quantity,
+      },
+    });
   }
 
   await prisma.trapperTransaction.create({
     data: {
       type: "checkout",
-      name: body.name,
-      phone: body.phone || null,
-      quantity: body.quantity,
-    },
-  });
-
-  await prisma.appSettings.update({
-    where: {
-      id: settings.id,
-    },
-    data: {
-      totalTrappers: {
-        decrement: body.quantity,
-      },
+      name,
+      phone,
+      quantity,
+      date,
     },
   });
 

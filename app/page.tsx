@@ -1,4 +1,4 @@
-import { prisma } from "@/src/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import ItemCard from "@/components/ItemCard";
 
 export default async function Home() {

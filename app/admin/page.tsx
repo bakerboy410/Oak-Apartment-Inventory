@@ -24,7 +24,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 py-10">
+    <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-800">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div>

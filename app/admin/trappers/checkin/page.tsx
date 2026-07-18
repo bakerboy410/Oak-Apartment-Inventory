@@ -80,6 +80,11 @@ export default function CheckInPage() {
               />
             </div>
 
+            <label className="flex items-center gap-2">
+              <input type="checkbox" name="legacy" />
+              Legacy record (return date unknown)
+            </label>
+
             <button
               disabled={loading}
               className="w-full rounded-xl bg-green-600 py-4 font-bold text-white transition hover:bg-green-700"
