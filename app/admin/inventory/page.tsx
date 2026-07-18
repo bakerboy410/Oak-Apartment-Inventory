@@ -69,10 +69,12 @@ export default async function InventoryAdminPage() {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <button className="rounded-lg bg-green-600 px-4 py-2 text-white">
+                  <Link
+                    href={`/admin/inventory/${item.id}/variant/new`}
+                    className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+                  >
                     Add Variant
-                  </button>
-
+                  </Link>{" "}
                   <button className="rounded-lg bg-red-600 px-4 py-2 text-white">
                     Delete
                   </button>
