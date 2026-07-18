@@ -37,8 +37,8 @@ export default function AdminInventoryClient({ items }: Props) {
       <div className="space-y-6">
         {filteredItems.map((item) => (
           <div key={item.id} className="rounded-3xl bg-white p-6 shadow">
-            <div className="flex items-center justify-between">
-              <div className="flex gap-6">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
                 {item.images[0] && (
                   <Image
                     src={item.images[0].url}
@@ -56,7 +56,9 @@ export default function AdminInventoryClient({ items }: Props) {
 
                   <p className="text-gray-700">{item.description}</p>
 
-                  <p className="mt-2 text-sm text-gray-600">{item.store}</p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    Store {item.store}
+                  </p>
 
                   {item.hasQuantity && (
                     <p className="mt-1 font-semibold text-gray-900">
@@ -66,10 +68,10 @@ export default function AdminInventoryClient({ items }: Props) {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Link
                   href={`/admin/inventory/${item.id}/variant/new`}
-                  className="rounded-lg bg-green-600 px-4 py-2 text-white"
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
                 >
                   Add Variant
                 </Link>
@@ -80,12 +82,14 @@ export default function AdminInventoryClient({ items }: Props) {
 
             {item.variants.length > 0 && (
               <div className="mt-6 border-t pt-4">
-                <h3 className="font-semibold text-gray-800">Variants</h3>
+                <h3 className="text-lg font-semibold text-gray-800">
+                  Variants
+                </h3>
 
                 {item.variants.map((variant) => (
                   <div
                     key={variant.id}
-                    className="mt-3 flex justify-between rounded-lg bg-gray-50 px-4 py-3"
+                    className="mt-3 flex flex-col gap-3 rounded-lg bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div>
                       <p className="font-medium text-gray-900">
