@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
-    "better-sqlite3": "^12.11.1",
     "clsx": "^2.1.1",
     "next": "^15.5.4",
     "prisma": "^6.16.2",
