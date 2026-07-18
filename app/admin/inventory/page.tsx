@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Image from "next/image";
+import DeleteItemButton from "@/components/admin/DeleteItemButton";
+import DeleteVariantButton from "@/components/admin/DeleteVariantButton";
 
 export default async function InventoryAdminPage() {
   const items = await prisma.item.findMany({
@@ -75,9 +77,7 @@ export default async function InventoryAdminPage() {
                   >
                     Add Variant
                   </Link>{" "}
-                  <button className="rounded-lg bg-red-600 px-4 py-2 text-white">
-                    Delete
-                  </button>
+                  <DeleteItemButton id={item.id} />{" "}
                 </div>
               </div>
 
@@ -102,9 +102,7 @@ export default async function InventoryAdminPage() {
                         </div>
 
                         <div className="flex gap-2">
-                          <button className="rounded bg-red-600 px-3 py-1 text-white">
-                            Delete
-                          </button>
+                          <DeleteVariantButton id={variant.id} />{" "}
                         </div>
                       </div>
                     ))}
