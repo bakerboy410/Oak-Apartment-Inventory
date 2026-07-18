@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import Image from "next/image";
 
 export default async function InventoryAdminPage() {
   const items = await prisma.item.findMany({
@@ -15,7 +16,7 @@ export default async function InventoryAdminPage() {
   return (
     <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-800">
       <div className="mx-auto max-w-6xl">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-6">
           <div>
             <Link
               href="/admin"
@@ -40,20 +41,31 @@ export default async function InventoryAdminPage() {
           {items.map((item) => (
             <div key={item.id} className="rounded-3xl bg-white p-6 shadow">
               <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold">{item.name}</h2>
-
-                  <p className="text-gray-600">{item.description}</p>
-
-                  <p className="mt-2 text-sm text-gray-500">{item.store}</p>
-
-                  {item.hasQuantity && (
-                    <p className="mt-1 font-semibold">
-                      Quantity: {item.quantity} {item.unit}
-                    </p>
+                <div className="flex gap-6">
+                  {item.images[0] && (
+                    <Image
+                      src={item.images[0].url}
+                      alt={item.name}
+                      width={140}
+                      height={140}
+                      className="h-32 w-32 rounded-2xl border object-cover"
+                    />
                   )}
-                </div>
 
+                  <div>
+                    <h2 className="text-2xl font-bold">{item.name}</h2>
+
+                    <p className="text-gray-600">{item.description}</p>
+
+                    <p className="mt-2 text-sm text-gray-500">{item.store}</p>
+
+                    {item.hasQuantity && (
+                      <p className="mt-1 font-semibold">
+                        Quantity: {item.quantity} {item.unit}
+                      </p>
+                    )}
+                  </div>
+                </div>
                 <div className="flex gap-3">
                   <button className="rounded-lg bg-yellow-500 px-4 py-2 text-white">
                     Edit
