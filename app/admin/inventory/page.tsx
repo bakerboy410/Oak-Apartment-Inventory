@@ -31,10 +31,12 @@ export default async function InventoryAdminPage() {
               Manage inventory items and variants.
             </p>
           </div>
-
-          <button className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
+          <Link
+            href="/admin/inventory/new"
+            className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700"
+          >
             Add Item
-          </button>
+          </Link>{" "}
         </div>
 
         <div className="mt-10 space-y-6">
