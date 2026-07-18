@@ -56,6 +56,26 @@ export async function POST(request: Request) {
     },
   });
 
+  const borrowers = await prisma.borrower.findMany();
+
+  const currentlyBorrowed = borrowers.reduce(
+    (sum, borrower) => sum + borrower.quantity,
+    0,
+  );
+
+  const available = settings.totalTrappers - currentlyBorrowed;
+
+  if (quantity > available) {
+    return NextResponse.json(
+      {
+        error: "Not enough trappers available.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
   await prisma.trapperTransaction.create({
     data: {
       type: "checkout",
