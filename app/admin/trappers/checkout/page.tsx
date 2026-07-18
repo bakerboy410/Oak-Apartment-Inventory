@@ -17,18 +17,17 @@ export default function CheckoutPage() {
 
     setLoading(true);
 
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("phone", phone);
+    formData.append("quantity", quantity.toString());
+    formData.append("date", new Date().toISOString());
+
     const res = await fetch("/api/trappers/checkout", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        phone,
-        quantity,
-      }),
+      body: formData,
     });
-
     setLoading(false);
 
     if (!res.ok) {

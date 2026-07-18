@@ -37,6 +37,26 @@ export async function POST(request: Request) {
     }
   }
 
+  const settings = await prisma.appSettings.findFirst();
+
+  if (!settings) {
+    return NextResponse.json(
+      { error: "App settings not found" },
+      { status: 500 },
+    );
+  }
+
+  await prisma.appSettings.update({
+    where: {
+      id: settings.id,
+    },
+    data: {
+      totalTrappers: {
+        increment: quantity,
+      },
+    },
+  });
+
   await prisma.trapperTransaction.create({
     data: {
       type: "checkin",

@@ -16,17 +16,16 @@ export default function CheckInPage() {
 
     setLoading(true);
 
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("quantity", quantity.toString());
+    formData.append("date", new Date().toISOString());
+
     const res = await fetch("/api/trappers/checkin", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        quantity,
-      }),
+      body: formData,
     });
-
     setLoading(false);
 
     if (!res.ok) {
