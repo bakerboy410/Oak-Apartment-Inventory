@@ -10,33 +10,6 @@ export async function POST(request: Request) {
   const date = new Date(formData.get("date") as string);
   const legacy = formData.get("legacy") === "on";
 
-  const borrower = await prisma.borrower.findFirst({
-    where: {
-      name,
-    },
-  });
-
-  if (borrower) {
-    const remaining = borrower.quantity - quantity;
-
-    if (remaining <= 0) {
-      await prisma.borrower.delete({
-        where: {
-          id: borrower.id,
-        },
-      });
-    } else {
-      await prisma.borrower.update({
-        where: {
-          id: borrower.id,
-        },
-        data: {
-          quantity: remaining,
-        },
-      });
-    }
-  }
-
   const settings = await prisma.appSettings.findFirst();
 
   if (!settings) {
@@ -46,26 +19,63 @@ export async function POST(request: Request) {
     );
   }
 
-  await prisma.appSettings.update({
-    where: {
-      id: settings.id,
-    },
-    data: {
-      totalTrappers: {
-        increment: quantity,
+  await prisma.$transaction(async (tx) => {
+    const borrower = await tx.borrower.findFirst({
+      where: {
+        name,
       },
-    },
-  });
+    });
 
-  await prisma.trapperTransaction.create({
-    data: {
-      type: "checkin",
-      name,
-      phone,
-      quantity,
-      date,
-      legacy,
-    },
+    if (!legacy) {
+      if (!borrower) {
+        throw new Error("Borrower not found.");
+      }
+
+      if (quantity > borrower.quantity) {
+        throw new Error("Returned quantity exceeds borrowed quantity.");
+      }
+
+      const remaining = borrower.quantity - quantity;
+
+      if (remaining === 0) {
+        await tx.borrower.delete({
+          where: {
+            id: borrower.id,
+          },
+        });
+      } else {
+        await tx.borrower.update({
+          where: {
+            id: borrower.id,
+          },
+          data: {
+            quantity: remaining,
+          },
+        });
+      }
+    }
+
+    await tx.appSettings.update({
+      where: {
+        id: settings.id,
+      },
+      data: {
+        totalTrappers: {
+          increment: quantity,
+        },
+      },
+    });
+
+    await tx.trapperTransaction.create({
+      data: {
+        type: "checkin",
+        name,
+        phone,
+        quantity,
+        date,
+        legacy,
+      },
+    });
   });
 
   return NextResponse.json({

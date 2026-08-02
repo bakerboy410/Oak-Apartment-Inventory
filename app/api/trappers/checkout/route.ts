@@ -9,33 +9,6 @@ export async function POST(request: Request) {
   const quantity = Number(formData.get("quantity"));
   const date = new Date(formData.get("date") as string);
 
-  const borrower = await prisma.borrower.findFirst({
-    where: {
-      name,
-    },
-  });
-
-  if (borrower) {
-    await prisma.borrower.update({
-      where: {
-        id: borrower.id,
-      },
-      data: {
-        quantity: {
-          increment: quantity,
-        },
-      },
-    });
-  } else {
-    await prisma.borrower.create({
-      data: {
-        name,
-        phone,
-        quantity,
-      },
-    });
-  }
-
   const settings = await prisma.appSettings.findFirst();
 
   if (!settings) {
@@ -45,27 +18,8 @@ export async function POST(request: Request) {
     );
   }
 
-  await prisma.appSettings.update({
-    where: {
-      id: settings.id,
-    },
-    data: {
-      totalTrappers: {
-        decrement: quantity,
-      },
-    },
-  });
-
-  const borrowers = await prisma.borrower.findMany();
-
-  const currentlyBorrowed = borrowers.reduce(
-    (sum, borrower) => sum + borrower.quantity,
-    0,
-  );
-
-  const available = settings.totalTrappers - currentlyBorrowed;
-
-  if (quantity > available) {
+  // Validate before making any changes
+  if (quantity > settings.totalTrappers) {
     return NextResponse.json(
       {
         error: "Not enough trappers available.",
@@ -76,14 +30,54 @@ export async function POST(request: Request) {
     );
   }
 
-  await prisma.trapperTransaction.create({
-    data: {
-      type: "checkout",
-      name,
-      phone,
-      quantity,
-      date,
-    },
+  await prisma.$transaction(async (tx) => {
+    const borrower = await tx.borrower.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (borrower) {
+      await tx.borrower.update({
+        where: {
+          id: borrower.id,
+        },
+        data: {
+          quantity: {
+            increment: quantity,
+          },
+        },
+      });
+    } else {
+      await tx.borrower.create({
+        data: {
+          name,
+          phone,
+          quantity,
+        },
+      });
+    }
+
+    await tx.appSettings.update({
+      where: {
+        id: settings.id,
+      },
+      data: {
+        totalTrappers: {
+          decrement: quantity,
+        },
+      },
+    });
+
+    await tx.trapperTransaction.create({
+      data: {
+        type: "checkout",
+        name,
+        phone,
+        quantity,
+        date,
+      },
+    });
   });
 
   return NextResponse.json({

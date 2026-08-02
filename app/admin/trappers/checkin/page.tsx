@@ -57,10 +57,10 @@ export default function CheckInPage() {
     setLoading(false);
 
     if (!res.ok) {
-      alert("Unable to check in trappers.");
+      const error = await res.json();
+      alert(error.error ?? "Unknown error");
       return;
     }
-
     router.push("/admin/trappers");
     router.refresh();
   }

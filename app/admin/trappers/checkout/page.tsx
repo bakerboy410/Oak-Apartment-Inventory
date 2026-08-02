@@ -31,7 +31,7 @@ export default function CheckoutPage() {
     setLoading(false);
 
     if (!res.ok) {
-      alert("Unable to check out trappers.");
+      alert("Unable to check in trappers.");
       return;
     }
 
