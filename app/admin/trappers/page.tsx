@@ -23,7 +23,7 @@ export default async function AdminTrappersPage() {
     0,
   );
 
-  const available = (settings?.totalTrappers ?? 0) - borrowed;
+  const available = settings?.totalTrappers ?? 0;
 
   return (
     <main className="min-h-screen bg-gray-100 p-8 text-gray-800">
