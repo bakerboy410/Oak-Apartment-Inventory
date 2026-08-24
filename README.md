@@ -1,36 +1,162 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Oak Apartment Inventory
+
+A web-based inventory and trapper management system built for Oak Apartments.
+
+The application is designed to help manage apartment inventory, track item quantities, and manage the issuing and return of trappers.
+
+## Features
+
+### Inventory Management
+
+- View and manage inventory items
+- Organize items by store
+- Track item quantities
+- Support items with and without quantities
+- Manage item variants
+- Upload and display item images
+- View inventory through an administrative dashboard
+
+### Trapper Management
+
+- Check trappers out to borrowers
+- Check trappers back in
+- Track currently borrowed trappers
+- Track available trappers
+- Maintain borrower records
+- Maintain trapper transaction history
+- Support legacy return records for trappers issued before the system was introduced
+
+### Administration
+
+- Administrative inventory management
+- Trapper management
+- Inventory and borrowing records
+- Centralized database-backed data management
+
+## Tech Stack
+
+- **Framework:** Next.js
+- **Language:** TypeScript
+- **UI:** React
+- **Styling:** Tailwind CSS
+- **ORM:** Prisma
+- **Database:** PostgreSQL
+- **Database Hosting:** Neon
+- **Deployment:** Vercel
+
+## Architecture
+
+The application uses Next.js for both the frontend and server-side API routes.
+
+Prisma is used as the ORM and provides the application's database access layer.
+
+The production architecture is:
+
+```text
+User
+  ↓
+Vercel
+  ↓
+Next.js
+  ↓
+Prisma
+  ↓
+PostgreSQL
+  ↓
+Neon
+```
+
+## Project Structure
+
+```text
+app/
+├── admin/                 # Administrative interface
+├── api/                   # Server-side API routes
+├── trappers/              # Public trapper management page
+└── page.tsx               # Main inventory page
+
+components/                # Reusable UI components
+lib/                       # Shared application utilities
+prisma/                    # Prisma schema and configuration
+public/                    # Static assets and images
+types/                     # TypeScript type definitions
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Make sure you have:
+- Node.js
+- npm
+- A PostgreSQL database
+
+## Installation
+
+### Clone the repository:
+
+```bash
+git clone git@github.com:bakerboy410/Oak-Apartment-Inventory.git
+cd Oak-Apartment-Inventory
+```
+
+### Install dependencies:
+
+```bash
+npm install
+```
+
+### Environment Variables
+
+Create a .env file in the project root:
+
+```text
+
+DATABASE_URL="your-postgresql-connection-string"
+```
+
+The DATABASE_URL should contain the connection string for the PostgreSQL database.
+
+Do not commit the .env file or database credentials to the repository.
+
+### Prisma
+
+Generate the Prisma client:
+
+```bash
+npx prisma generate
+```
+
+Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will be available at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Database
 
-## Learn More
+The application uses PostgreSQL with Prisma.
 
-To learn more about Next.js, take a look at the following resources:
+The project was initially developed using SQLite during development and was later migrated to PostgreSQL before production deployment.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The production database is hosted on Neon.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The application is deployed using Vercel.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The production environment requires the DATABASE_URL environment variable to be configured in Vercel.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The PostgreSQL database is hosted separately on Neon, keeping the application and database independent of the deployment environment.
+
+## Development Notes
+
+This project was built specifically for Oak Apartments and is designed around the operational requirements of the apartment's inventory and trapper management.
+
+The application can be extended as additional inventory, reporting, or administrative requirements are introduced.
