@@ -22,16 +22,16 @@ export default function CheckoutPage() {
     formData.append("name", name);
     formData.append("phone", phone);
     formData.append("quantity", quantity.toString());
-    formData.append("date", new Date().toISOString());
 
     const res = await fetch("/api/trappers/checkout", {
       method: "POST",
       body: formData,
     });
+
     setLoading(false);
 
     if (!res.ok) {
-      alert("Unable to check in trappers.");
+      alert("Unable to check out trappers.");
       return;
     }
 
@@ -40,7 +40,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 py-10  text-gray-700">
+    <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-700">
       <div className="mx-auto max-w-xl">
         <Link
           href="/admin/trappers"
@@ -71,15 +71,6 @@ export default function CheckoutPage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className="w-full rounded-xl border px-4 py-3"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block font-semibold">Date</label>
-              <input
-                type="date"
-                name="date"
-                defaultValue={new Date().toISOString().split("T")[0]}
               />
             </div>
 

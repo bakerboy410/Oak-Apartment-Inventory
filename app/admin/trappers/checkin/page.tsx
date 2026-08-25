@@ -43,7 +43,6 @@ export default function CheckInPage() {
 
     formData.append("name", name);
     formData.append("quantity", quantity.toString());
-    formData.append("date", new Date().toISOString());
 
     if (legacy) {
       formData.append("legacy", "on");
@@ -57,20 +56,20 @@ export default function CheckInPage() {
     setLoading(false);
 
     if (!res.ok) {
-      const error = await res.json();
-      alert(error.error ?? "Unknown error");
+      alert("Unable to check in trappers.");
       return;
     }
+
     router.push("/admin/trappers");
     router.refresh();
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-800">
+    <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-700">
       <div className="mx-auto max-w-xl">
         <Link
           href="/admin/trappers"
-          className="rounded-xl bg-white px-5 py-3 shadow"
+          className="inline-flex rounded-xl bg-white px-5 py-3 shadow"
         >
           ← Back
         </Link>

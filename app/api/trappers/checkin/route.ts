@@ -5,77 +5,80 @@ export async function POST(request: Request) {
   const formData = await request.formData();
 
   const name = formData.get("name") as string;
-  const phone = (formData.get("phone") as string) || null;
   const quantity = Number(formData.get("quantity"));
-  const date = new Date(formData.get("date") as string);
   const legacy = formData.get("legacy") === "on";
+
+  if (!name || !quantity || quantity < 1) {
+    return NextResponse.json(
+      {
+        error: "Invalid check-in information.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
 
   const settings = await prisma.appSettings.findFirst();
 
   if (!settings) {
     return NextResponse.json(
-      { error: "App settings not found" },
-      { status: 500 },
+      {
+        error: "App settings not found",
+      },
+      {
+        status: 500,
+      },
     );
   }
 
-  await prisma.$transaction(async (tx) => {
-    const borrower = await tx.borrower.findFirst({
-      where: {
-        name,
-      },
-    });
+  const borrower = await prisma.borrower.findFirst({
+    where: {
+      name,
+    },
+  });
 
-    if (!legacy) {
-      if (!borrower) {
-        throw new Error("Borrower not found.");
-      }
+  if (borrower) {
+    const remaining = borrower.quantity - quantity;
 
-      if (quantity > borrower.quantity) {
-        throw new Error("Returned quantity exceeds borrowed quantity.");
-      }
-
-      const remaining = borrower.quantity - quantity;
-
-      if (remaining === 0) {
-        await tx.borrower.delete({
-          where: {
-            id: borrower.id,
-          },
-        });
-      } else {
-        await tx.borrower.update({
-          where: {
-            id: borrower.id,
-          },
-          data: {
-            quantity: remaining,
-          },
-        });
-      }
-    }
-
-    await tx.appSettings.update({
-      where: {
-        id: settings.id,
-      },
-      data: {
-        totalTrappers: {
-          increment: quantity,
+    if (remaining <= 0) {
+      await prisma.borrower.delete({
+        where: {
+          id: borrower.id,
         },
-      },
-    });
+      });
+    } else {
+      await prisma.borrower.update({
+        where: {
+          id: borrower.id,
+        },
+        data: {
+          quantity: remaining,
+        },
+      });
+    }
+  }
 
-    await tx.trapperTransaction.create({
-      data: {
-        type: "checkin",
-        name,
-        phone,
-        quantity,
-        date,
-        legacy,
+  await prisma.appSettings.update({
+    where: {
+      id: settings.id,
+    },
+    data: {
+      totalTrappers: {
+        increment: quantity,
       },
-    });
+    },
+  });
+
+  await prisma.trapperTransaction.create({
+    data: {
+      type: "checkin",
+      name,
+      phone: null,
+      quantity,
+      date: new Date(),
+      legacy,
+    },
   });
 
   return NextResponse.json({
