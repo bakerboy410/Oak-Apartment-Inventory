@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -8,6 +9,7 @@ export default function NewItemPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -16,6 +18,43 @@ export default function NewItemPage() {
   const [hasQuantity, setHasQuantity] = useState(true);
   const [quantity, setQuantity] = useState(0);
   const [unit, setUnit] = useState("");
+
+  const [imageUrl, setImageUrl] = useState("");
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setUploadingImage(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", "item");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Unable to upload image.");
+        return;
+      }
+
+      setImageUrl(data.url);
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("Unable to upload image.");
+    } finally {
+      setUploadingImage(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,6 +73,7 @@ export default function NewItemPage() {
         hasQuantity,
         quantity,
         unit,
+        image: imageUrl || undefined,
       }),
     });
 
@@ -124,9 +164,38 @@ export default function NewItemPage() {
               </>
             )}
 
+            <div>
+              <label className="mb-2 block font-semibold">Image</label>
+
+              <label className="inline-flex cursor-pointer items-center rounded-xl bg-gray-800 px-5 py-3 font-semibold text-white transition hover:bg-gray-700">
+                {uploadingImage ? "Uploading..." : "📷 Upload Image"}
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+              </label>
+
+              {imageUrl && (
+                <div className="mt-4">
+                  <Image
+                    src={imageUrl}
+                    alt="Item preview"
+                    width={800}
+                    height={400}
+                    className="h-48 w-full rounded-xl border bg-gray-50 object-contain p-2"
+                  />{" "}
+                </div>
+              )}
+            </div>
+
             <button
-              disabled={loading}
-              className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white"
+              type="submit"
+              disabled={loading || uploadingImage}
+              className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Item"}
             </button>
