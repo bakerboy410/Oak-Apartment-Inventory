@@ -18,8 +18,6 @@ export default function NewVariantPage() {
   const [quantity, setQuantity] = useState(0);
   const [unit, setUnit] = useState("");
 
-  const [image, setImage] = useState("");
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -36,7 +34,6 @@ export default function NewVariantPage() {
         hasQuantity,
         quantity,
         unit,
-        image,
       }),
     });
 
@@ -115,19 +112,6 @@ export default function NewVariantPage() {
                 </div>
               </>
             )}
-
-            <div>
-              <label className="mb-2 block font-semibold text-gray-800">
-                Image Path
-              </label>
-
-              <input
-                placeholder="/images/variants/example.jpg"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className="w-full rounded-xl border px-4 py-3 text-gray-800"
-              />
-            </div>
 
             <button
               disabled={loading}

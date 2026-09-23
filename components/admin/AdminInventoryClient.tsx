@@ -70,6 +70,13 @@ export default function AdminInventoryClient({ items }: Props) {
 
               <div className="flex flex-wrap gap-3">
                 <Link
+                  href={`/admin/inventory/${item.id}/edit`}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                >
+                  Edit
+                </Link>
+
+                <Link
                   href={`/admin/inventory/${item.id}/variant/new`}
                   className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
                 >
@@ -103,7 +110,16 @@ export default function AdminInventoryClient({ items }: Props) {
                       )}
                     </div>
 
-                    <DeleteVariantButton id={variant.id} />
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={`/admin/inventory/variant/${variant.id}/edit`}
+                        className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      >
+                        Edit
+                      </Link>
+
+                      <DeleteVariantButton id={variant.id} />
+                    </div>
                   </div>
                 ))}
               </div>

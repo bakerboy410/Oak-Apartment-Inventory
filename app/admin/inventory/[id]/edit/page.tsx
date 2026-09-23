@@ -1,51 +1,131 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
-export default function NewItemPage() {
+type Item = {
+  id: string;
+  name: string;
+  description: string;
+  store: string;
+  hasQuantity: boolean;
+  quantity: number | null;
+  unit: string | null;
+};
+
+export default function EditItemPage() {
   const router = useRouter();
+  const params = useParams();
 
-  const [loading, setLoading] = useState(false);
+  const id = params.id as string;
+
+  const [item, setItem] = useState<Item | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [store, setStore] = useState("");
-
   const [hasQuantity, setHasQuantity] = useState(true);
   const [quantity, setQuantity] = useState(0);
   const [unit, setUnit] = useState("");
 
+  useEffect(() => {
+    async function loadItem() {
+      try {
+        const res = await fetch(`/api/items/${id}`);
+
+        if (!res.ok) {
+          alert("Unable to load item.");
+          return;
+        }
+
+        const data = await res.json();
+
+        setItem(data);
+        setName(data.name);
+        setDescription(data.description);
+        setStore(data.store);
+        setHasQuantity(data.hasQuantity);
+        setQuantity(data.quantity ?? 0);
+        setUnit(data.unit ?? "");
+      } catch (error) {
+        console.error("LOAD ITEM ERROR:", error);
+        alert("Unable to load item.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadItem();
+  }, [id]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    setLoading(true);
+    setSaving(true);
 
-    const res = await fetch("/api/items/new", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        description,
-        store,
-        hasQuantity,
-        quantity,
-        unit,
-      }),
-    });
+    try {
+      const res = await fetch(`/api/items/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          store,
+          hasQuantity,
+          quantity,
+          unit,
+        }),
+      });
 
-    setLoading(false);
+      if (!res.ok) {
+        alert("Unable to update item.");
+        return;
+      }
 
-    if (!res.ok) {
-      alert("Unable to create item.");
-      return;
+      router.push("/admin/inventory");
+      router.refresh();
+    } catch (error) {
+      console.error("UPDATE ITEM ERROR:", error);
+      alert("Unable to update item.");
+    } finally {
+      setSaving(false);
     }
+  }
 
-    router.push("/admin/inventory");
-    router.refresh();
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-800">
+        <div className="mx-auto max-w-2xl">
+          <div className="rounded-3xl bg-white p-8 shadow">
+            <p className="text-gray-600">Loading item...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!item) {
+    return (
+      <main className="min-h-screen bg-gray-100 px-6 py-10 text-gray-800">
+        <div className="mx-auto max-w-2xl">
+          <div className="rounded-3xl bg-white p-8 shadow">
+            <p className="text-red-600">Item could not be found.</p>
+
+            <Link
+              href="/admin/inventory"
+              className="mt-6 inline-block rounded-lg bg-gray-200 px-4 py-2"
+            >
+              ← Back to Inventory
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -59,11 +139,12 @@ export default function NewItemPage() {
         </Link>
 
         <div className="mt-8 rounded-3xl bg-white p-8 shadow">
-          <h1 className="text-4xl font-bold">Add Item</h1>
+          <h1 className="text-4xl font-bold">Edit Item</h1>
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div>
               <label className="mb-2 block font-semibold">Name</label>
+
               <input
                 required
                 value={name}
@@ -74,6 +155,7 @@ export default function NewItemPage() {
 
             <div>
               <label className="mb-2 block font-semibold">Description</label>
+
               <textarea
                 required
                 value={description}
@@ -84,6 +166,7 @@ export default function NewItemPage() {
 
             <div>
               <label className="mb-2 block font-semibold">Store</label>
+
               <input
                 required
                 value={store}
@@ -105,6 +188,7 @@ export default function NewItemPage() {
               <>
                 <div>
                   <label className="mb-2 block font-semibold">Quantity</label>
+
                   <input
                     type="number"
                     value={quantity}
@@ -115,6 +199,7 @@ export default function NewItemPage() {
 
                 <div>
                   <label className="mb-2 block font-semibold">Unit</label>
+
                   <input
                     value={unit}
                     onChange={(e) => setUnit(e.target.value)}
@@ -125,10 +210,11 @@ export default function NewItemPage() {
             )}
 
             <button
-              disabled={loading}
-              className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white"
+              type="submit"
+              disabled={saving}
+              className="w-full rounded-xl bg-blue-600 py-4 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? "Saving..." : "Save Item"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
           </form>
         </div>
