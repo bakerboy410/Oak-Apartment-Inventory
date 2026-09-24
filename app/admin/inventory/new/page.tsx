@@ -84,8 +84,7 @@ export default function NewItemPage() {
       return;
     }
 
-    router.push("/admin/inventory");
-    router.refresh();
+    window.location.href = "/admin/inventory";
   }
 
   return (
