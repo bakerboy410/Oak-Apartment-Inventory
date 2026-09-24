@@ -1,16 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+type Borrower = {
+  id: string;
+  name: string;
+  quantity: number;
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
 
+  const [borrowers, setBorrowers] = useState<Borrower[]>([]);
+  const [borrowerId, setBorrowerId] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadBorrowers() {
+      const res = await fetch("/api/trappers/borrowers");
+
+      if (res.ok) {
+        const data = await res.json();
+        setBorrowers(data);
+      }
+    }
+
+    loadBorrowers();
+  }, []);
+
+  const selectedBorrower = borrowers.find(
+    (borrower) => borrower.id === borrowerId,
+  );
+
+  function handleBorrowerChange(value: string) {
+    setBorrowerId(value);
+
+    if (value === "new") {
+      setName("");
+      setPhone("");
+      return;
+    }
+
+    const borrower = borrowers.find((borrower) => borrower.id === value);
+
+    if (borrower) {
+      setName(borrower.name);
+      setPhone("");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,6 +65,11 @@ export default function CheckoutPage() {
     formData.append("name", name);
     formData.append("phone", phone);
     formData.append("quantity", quantity.toString());
+    formData.append("date", date);
+
+    if (borrowerId && borrowerId !== "new") {
+      formData.append("borrowerId", borrowerId);
+    }
 
     const res = await fetch("/api/trappers/checkout", {
       method: "POST",
@@ -31,7 +79,9 @@ export default function CheckoutPage() {
     setLoading(false);
 
     if (!res.ok) {
-      alert("Unable to check out trappers.");
+      const data = await res.json();
+
+      alert(data.error || "Unable to check out trappers.");
       return;
     }
 
@@ -54,25 +104,67 @@ export default function CheckoutPage() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div>
-              <label className="mb-2 block font-semibold">Borrowers Name</label>
+              <label className="mb-2 block font-semibold">Borrower</label>
 
-              <input
+              <select
                 required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={borrowerId}
+                onChange={(e) => handleBorrowerChange(e.target.value)}
                 className="w-full rounded-xl border px-4 py-3"
-              />
+              >
+                <option value="">Select borrower</option>
+
+                {borrowers.map((borrower) => (
+                  <option key={borrower.id} value={borrower.id}>
+                    {borrower.name} ({borrower.quantity} currently borrowed)
+                  </option>
+                ))}
+
+                <option value="new">+ New borrower</option>
+              </select>
             </div>
 
-            <div>
-              <label className="mb-2 block font-semibold">Phone Number</label>
+            {borrowerId === "new" && (
+              <>
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    Borrowers Name
+                  </label>
 
-              <input
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full rounded-xl border px-4 py-3"
-              />
-            </div>
+                  <input
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full rounded-xl border px-4 py-3"
+                    placeholder="Enter name"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    Phone Number
+                  </label>
+
+                  <input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full rounded-xl border px-4 py-3"
+                    placeholder="Optional"
+                  />
+                </div>
+              </>
+            )}
+
+            {selectedBorrower && (
+              <div className="rounded-xl bg-blue-50 p-4">
+                <p className="text-sm text-blue-700">
+                  <span className="font-semibold">{selectedBorrower.name}</span>{" "}
+                  currently has{" "}
+                  <span className="font-bold">{selectedBorrower.quantity}</span>{" "}
+                  trappers.
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="mb-2 block font-semibold">Quantity</label>
@@ -83,6 +175,20 @@ export default function CheckoutPage() {
                 min={1}
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-full rounded-xl border px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block font-semibold">
+                Transaction Date
+              </label>
+
+              <input
+                required
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
                 className="w-full rounded-xl border px-4 py-3"
               />
             </div>

@@ -8,6 +8,7 @@ type Borrower = {
   id: string;
   name: string;
   quantity: number;
+  latestCheckoutDate: string | null;
 };
 
 export default function CheckInPage() {
@@ -18,6 +19,7 @@ export default function CheckInPage() {
 
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [date, setDate] = useState("");
 
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +36,14 @@ export default function CheckInPage() {
     loadBorrowers();
   }, []);
 
+  const selectedBorrower = borrowers.find((borrower) => borrower.name === name);
+
+  function handleBorrowerChange(value: string) {
+    setName(value);
+    setQuantity(1);
+    setDate("");
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -43,6 +53,10 @@ export default function CheckInPage() {
 
     formData.append("name", name);
     formData.append("quantity", quantity.toString());
+
+    if (!legacy) {
+      formData.append("date", date);
+    }
 
     if (legacy) {
       formData.append("legacy", "on");
@@ -56,7 +70,9 @@ export default function CheckInPage() {
     setLoading(false);
 
     if (!res.ok) {
-      alert("Unable to check in trappers.");
+      const data = await res.json();
+
+      alert(data.error || "Unable to check in trappers.");
       return;
     }
 
@@ -102,7 +118,7 @@ export default function CheckInPage() {
                 <select
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => handleBorrowerChange(e.target.value)}
                   className="w-full rounded-xl border px-4 py-3"
                 >
                   <option value="">Select borrower</option>
@@ -116,6 +132,26 @@ export default function CheckInPage() {
               )}
             </div>
 
+            {selectedBorrower && !legacy && (
+              <div className="rounded-xl bg-green-50 p-4">
+                <p className="text-sm text-green-700">
+                  <span className="font-semibold">{selectedBorrower.name}</span>{" "}
+                  currently has{" "}
+                  <span className="font-bold">{selectedBorrower.quantity}</span>{" "}
+                  trappers.
+                </p>
+
+                {selectedBorrower.latestCheckoutDate && (
+                  <p className="mt-1 text-sm text-green-700">
+                    Latest checkout:{" "}
+                    <span className="font-semibold">
+                      {selectedBorrower.latestCheckoutDate}
+                    </span>
+                  </p>
+                )}
+              </div>
+            )}
+
             <div>
               <label className="mb-2 block font-semibold">Quantity</label>
 
@@ -123,11 +159,42 @@ export default function CheckInPage() {
                 required
                 type="number"
                 min={1}
+                max={selectedBorrower?.quantity}
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
                 className="w-full rounded-xl border px-4 py-3"
               />
+
+              {selectedBorrower && !legacy && (
+                <p className="mt-2 text-sm text-gray-500">
+                  Maximum return: {selectedBorrower.quantity}
+                </p>
+              )}
             </div>
+
+            {!legacy && (
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Check-in Date
+                </label>
+
+                <input
+                  required
+                  type="date"
+                  min={selectedBorrower?.latestCheckoutDate || undefined}
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full rounded-xl border px-4 py-3"
+                />
+
+                {selectedBorrower?.latestCheckoutDate && (
+                  <p className="mt-2 text-sm text-gray-500">
+                    Check-in date cannot be earlier than{" "}
+                    {selectedBorrower.latestCheckoutDate}.
+                  </p>
+                )}
+              </div>
+            )}
 
             <button
               disabled={loading}

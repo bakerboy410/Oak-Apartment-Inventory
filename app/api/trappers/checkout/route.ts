@@ -4,14 +4,29 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const formData = await request.formData();
 
+  const borrowerId = (formData.get("borrowerId") as string) || null;
   const name = formData.get("name") as string;
   const phone = (formData.get("phone") as string) || null;
   const quantity = Number(formData.get("quantity"));
+  const date = formData.get("date") as string;
 
-  if (!name || !quantity || quantity < 1) {
+  if (!name || !quantity || quantity < 1 || !date) {
     return NextResponse.json(
       {
         error: "Invalid checkout information.",
+      },
+      {
+        status: 400,
+      },
+    );
+  }
+
+  const transactionDate = new Date(`${date}T12:00:00`);
+
+  if (Number.isNaN(transactionDate.getTime())) {
+    return NextResponse.json(
+      {
+        error: "Invalid transaction date.",
       },
       {
         status: 400,
@@ -43,13 +58,26 @@ export async function POST(request: Request) {
     );
   }
 
-  const borrower = await prisma.borrower.findFirst({
-    where: {
-      name,
-    },
-  });
+  let borrower;
 
-  if (borrower) {
+  if (borrowerId) {
+    borrower = await prisma.borrower.findUnique({
+      where: {
+        id: borrowerId,
+      },
+    });
+
+    if (!borrower) {
+      return NextResponse.json(
+        {
+          error: "Borrower not found.",
+        },
+        {
+          status: 404,
+        },
+      );
+    }
+
     await prisma.borrower.update({
       where: {
         id: borrower.id,
@@ -61,13 +89,32 @@ export async function POST(request: Request) {
       },
     });
   } else {
-    await prisma.borrower.create({
-      data: {
+    borrower = await prisma.borrower.findFirst({
+      where: {
         name,
-        phone,
-        quantity,
       },
     });
+
+    if (borrower) {
+      await prisma.borrower.update({
+        where: {
+          id: borrower.id,
+        },
+        data: {
+          quantity: {
+            increment: quantity,
+          },
+        },
+      });
+    } else {
+      borrower = await prisma.borrower.create({
+        data: {
+          name,
+          phone,
+          quantity,
+        },
+      });
+    }
   }
 
   await prisma.appSettings.update({
@@ -84,10 +131,10 @@ export async function POST(request: Request) {
   await prisma.trapperTransaction.create({
     data: {
       type: "checkout",
-      name,
-      phone,
+      name: borrower.name,
+      phone: phone,
       quantity,
-      date: new Date(),
+      date: transactionDate,
     },
   });
 
